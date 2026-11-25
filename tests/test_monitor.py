@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from intelligence.adapters import IncompleteInventory, paginated, paylocity
+from intelligence.adapters import IncompleteInventory, group_one, paginated, paylocity
 from intelligence.report import prepare_daily
 from intelligence.model import Job, resolve_observations
 from intelligence.run import import_history, persist_check, registry_data, scan
@@ -129,6 +129,20 @@ class MonitorTests(unittest.TestCase):
         self.assertIsNone(rows["kelly"]["rank"])
         self.assertEqual(59, rows["cavender"]["rank"])
         self.assertIsNone(rows["cavender-auto-group"]["rank"])
+
+    def test_group_one_requires_complete_unique_inventory(self):
+        employer = {"board": "https://www.group1careers.com/results"}
+        row = ('<td class="hidden-xs af-job-id">2026-12</td>'
+               '<td class="af-job-title"><a href="/job.html?id=2026-12&category=Sales">Sales Director</a></td>'
+               '<td class="af-job-location">US-PA-Philadelphia</td>')
+        with patch("intelligence.adapters.fetch", return_value="<h1>1 Jobs Found</h1>" + row):
+            job, = group_one(employer)
+            self.assertEqual("2026-12", job.requisition)
+            self.assertEqual("https://www.group1careers.com/job.html?id=2026-12", job.url)
+        for bad in (row, row * 2):
+            with patch("intelligence.adapters.fetch", return_value="<h1>2 Jobs Found</h1>" + bad):
+                with self.assertRaises(ValueError):
+                    group_one(employer)
 
     def test_paylocity_requires_board_identity_even_for_empty_board(self):
         employer = {"name": "Preston Automotive Group", "board": "https://example.com/jobs"}

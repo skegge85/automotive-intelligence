@@ -5,7 +5,7 @@ import json
 import re
 import threading
 import time
-from urllib.parse import urlencode, urljoin, urlsplit
+from urllib.parse import parse_qs, urlencode, urljoin, urlsplit
 from urllib.request import Request, urlopen
 from urllib.robotparser import RobotFileParser
 from urllib.error import HTTPError
@@ -217,8 +217,35 @@ def smartrecruiters(employer):
     return paginated(page, 100)
 
 
+def group_one(employer):
+    portal = employer["board"]
+    page = fetch(portal)
+    total = re.search(r"<h1>\s*([\d,]+) Jobs Found\s*</h1>", page)
+    if not total:
+        raise ValueError("Group 1 board did not provide an inventory total")
+    rows = re.findall(
+        r'<td class="hidden-xs af-job-id">([^<]+)</td>\s*'
+        r'<td class="af-job-title"><a href="([^"]+)">(.*?)</a></td>\s*'
+        r'<td class="af-job-location">([^<]*)</td>', page, re.S)
+    expected = int(total[1].replace(",", ""))
+    ids = {row[0].strip() for row in rows}
+    if len(rows) != expected or len(ids) != expected:
+        raise ValueError("Group 1 inventory rows do not match the advertised total")
+    jobs = []
+    for requisition, href, title, location in rows:
+        key = requisition.strip()
+        source = urlsplit(urljoin(portal, unescape(href)))
+        if (source.hostname != urlsplit(portal).hostname or source.path != "/job.html"
+                or parse_qs(source.query).get("id") != [key]):
+            raise ValueError("Group 1 job URL does not match its requisition")
+        jobs.append(Job(unescape(ENTITY_MARKUP.sub("", title)).strip(),
+                        urljoin(portal, f"/job.html?{urlencode({'id': key})}"),
+                        key, unescape(location).strip() or None))
+    return jobs
+
+
 ADAPTERS = {"workday": workday, "paylocity": paylocity, "phenom": phenom,
-            "greenhouse": greenhouse, "lever": lever, "smartrecruiters": smartrecruiters, "browser": browser}
+            "greenhouse": greenhouse, "lever": lever, "smartrecruiters": smartrecruiters, "browser": browser, "group-one": group_one}
 
 
 class PostingMeta(HTMLParser):
@@ -262,7 +289,7 @@ def posting_details(job):
     for block in re.findall(r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
                             html, re.I | re.S):
         try:
-            payload = json.loads(block)
+            payload = json.loads(block, strict=source.hostname != "www.group1careers.com")
         except ValueError:
             continue
         for item in payload if isinstance(payload, list) else payload.get("@graph", [payload]):
