@@ -1,0 +1,13 @@
+# Deployment
+
+Use separate projects and free plans for the pilot. This checkout has no hosted configuration.
+
+1. Create a private GitHub repository named `automotive-intelligence`. Push this checkout’s `main` branch as the default branch.
+2. Create a dedicated Supabase project. In SQL Editor run `schema.sql` and then `supabase_access.sql`. Disable public signups. Create the operator manually in Authentication with confirmed email and an initial password. Insert that operator’s Auth UUID into `public.operators`. In GitHub Actions set the `DATABASE_URL` secret to the project’s session-pooler connection string with SSL enabled and a dedicated scoped writer or project database owner.
+3. In Netlify create a **new project** from the private repository. Use the root `netlify.toml`. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in the new project’s build environment. The build rejects non-publishable keys. Sign in using the operator and verify an unrelated Auth account cannot read the dashboard records.
+4. In Resend verify a sending domain or pilot sender and create a send-only key. Set `RESEND_API_KEY` and `REPORT_TO` as Actions secrets and `REPORT_FROM` as an Actions variable. These settings explicitly enable email on scheduled runs. Configure them after reviewing the recipient and expected email content. Keys and passwords belong in the relevant service settings.
+5. Run the manual scan, verify PostgreSQL coverage data appears in the dashboard, and manually check portal links and pipeline updates. Import the historical regression records using `python -m intelligence.run import-history` with the hosted database connection configured. To test the digest, run the workflow manually in report mode. Confirm provider acceptance and inbox receipt. Validate at least seven consecutive Eastern calendar days of scheduled scans and daily digests before declaring production readiness.
+
+The GitHub workflow serializes scheduled updates to the database. The `deliver` command is the only email-sending entry point. It uses a stable idempotency key for pending messages and records the provider’s acceptance. An email provider accepting a request does not establish inbox receipt. Use the provider’s delivery event or the receiving mailbox for validation.
+
+If you later configure a Playwright source, install Chromium on the runner with `python -m playwright install --with-deps chromium`. The browser configuration must define the total element selector, a regex with one numeric capture group, posting row and link selectors, and a next-page selector. Validate source access policy and confirm all pages from the normal public interface.

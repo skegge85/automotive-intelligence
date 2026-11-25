@@ -1,0 +1,49 @@
+name: Executive vacancy monitor
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Choose the operation
+        type: choice
+        options: [scan, report, import-history]
+        default: scan
+  schedule:
+    - cron: '15 4,16 * * *'
+      timezone: America/New_York
+    - cron: '0 7 * * *'
+      timezone: America/New_York
+permissions:
+  contents: read
+concurrency:
+  group: automotive-intelligence-database
+  cancel-in-progress: false
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      REPORT_FROM: ${{ vars.REPORT_FROM }}
+      REPORT_TO: ${{ secrets.REPORT_TO }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests
+      - name: Require persistent database
+        run: test -n "$DATABASE_URL"
+      - name: Monitor inventory
+        if: (github.event_name == 'schedule' && github.event.schedule != '0 7 * * *') || inputs.mode == 'scan'
+        run: python -m intelligence.run scan
+      - name: Queue daily report
+        if: github.event.schedule == '0 7 * * *' || inputs.mode == 'report'
+        run: python -m intelligence.run report
+      - name: Import historical requisitions
+        if: inputs.mode == 'import-history'
+        run: python -m intelligence.run import-history
+      - name: Deliver queued alerts and reports
+        if: always() && !cancelled() && env.DATABASE_URL != '' && env.RESEND_API_KEY != '' && inputs.mode != 'import-history'
+        run: python -m intelligence.run deliver

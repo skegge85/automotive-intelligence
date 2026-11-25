@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automotive Intelligence</title>
+<link rel="stylesheet" href="style.css">
+<script src="config.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<header><div><p class="brand">Automotive Intelligence</p><h1>Executive opportunities</h1></div><button id="signout" hidden>Sign out</button></header>
+<main>
+<p id="message" role="status"></p>
+<form id="signin" class="panel" hidden>
+<h2>Sign in</h2>
+<label>Email <input type="email" name="email" autocomplete="username" required></label>
+<label>Password <input type="password" name="password" autocomplete="current-password" required></label>
+<button>Sign in</button>
+</form>
+<section id="workspace" hidden>
+<div id="metrics" class="metrics"></div>
+<nav id="views" aria-label="Dashboard views">
+<button data-view="active" aria-pressed="true">Active vacancies</button>
+<button data-view="new">New discoveries</button>
+<button data-view="historical">History</button>
+<button data-view="pipeline">Pipeline</button>
+<button data-view="employers">Employers</button>
+<button data-view="coverage">Coverage &amp; health</button>
+</nav>
+<div class="filters">
+<label>Search <input id="search" type="search" placeholder="Employer, title, location, requisition"></label>
+<label>Sort <select id="sort"><option value="score">Highest ranked</option><option value="latest">Most recent</option><option value="name">Name</option></select></label>
+</div>
+<section id="results" aria-label="Results"></section>
+</section>
+</main>
+</body>
+</html>

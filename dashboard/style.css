@@ -1,0 +1,26 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #f2f5f7; color: #142634; font: 16px/1.5 system-ui, sans-serif; }
+header { padding: 2rem max(5vw, 1rem); background: #102838; color: #f1f7f8; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.brand { margin: 0; color: #a9d6d4; font-weight: 650; }
+h1 { margin: .2rem 0 0; font-size: clamp(1.6rem, 5vw, 2.5rem); }
+h2, h3, p { margin: 0 0 .6rem; }
+main { max-width: 1220px; margin: auto; padding: 1.4rem 1rem 3rem; }
+.panel, .card, .metric { border: 1px solid #d1dae0; border-radius: .65rem; background: white; padding: 1rem; }
+.panel { max-width: 28rem; margin: 2rem auto; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; }
+.metric strong { display: block; font-size: 1.55rem; }
+nav, .filters { display: flex; flex-wrap: wrap; gap: .6rem; margin-block: 1rem; }
+button, select, input, textarea { font: inherit; border-radius: .35rem; color: inherit; border: 1px solid #8c9da8; padding: .42rem .68rem; }
+button { cursor: pointer; background: #fff; }
+button[aria-pressed="true"], form button { background: #145b60; color: white; border-color: #145b60; }
+label { display: block; }
+label input, label select, label textarea { display: block; margin: .2rem 0 .7rem; }
+#search { width: min(72vw, 350px); }
+#results { display: grid; gap: .7rem; }
+.card a { color: #0b5664; font-weight: 650; }
+.card p, .muted { color: #405462; overflow-wrap: anywhere; }
+.card textarea { width: min(100%, 40rem); }
+details { margin-block: .6rem; }
+summary { cursor: pointer; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid #227d86; outline-offset: 3px; }

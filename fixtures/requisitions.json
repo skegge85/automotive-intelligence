@@ -1,0 +1,40 @@
+[
+  {
+    "employer": "autonation",
+    "requisition": "JR2026152536",
+    "title": "Market President",
+    "url": "https://careers.autonation.com/us/en/job/JR2026152536/Market-President",
+    "location": "Buena Park, California",
+    "application_status": "applied",
+    "observations": [
+      {
+        "status": "active",
+        "source": "historical third-party claim",
+        "direct": false
+      },
+      {
+        "status": "filled",
+        "source": "AutoNation career portal",
+        "direct": true,
+        "evidence": "the job you are trying to apply for has been filled",
+        "date": "2026-11-25"
+      }
+    ]
+  },
+  {
+    "employer": "preston",
+    "requisition": "3532264",
+    "title": "Automotive Market Area Director",
+    "url": "https://recruiting.paylocity.com/recruiting/jobs/Details/3532264/Preston-Automotive-Group/Automotive-Market-Area-Director",
+    "application_status": null,
+    "observations": [
+      {
+        "status": "inactive",
+        "source": "Paylocity JobNotFound redirect",
+        "direct": true,
+        "evidence": "that job does not exist or is not currently active",
+        "date": "2026-11-25"
+      }
+    ]
+  }
+]
